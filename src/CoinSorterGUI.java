@@ -1,10 +1,9 @@
-import java.util.ArrayList;
-
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.geometry.Pos;
-import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
@@ -18,174 +17,207 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 public class CoinSorterGUI extends Application {
+	private Menu coinSorterMainMenu = new Menu("Click here to choose from this menu");
+    private MenuItem coinCalculatorMenuItem = new MenuItem("Coin calculator");
+    private MenuItem multipleCalculatorMenuItem = new MenuItem("Multiple coin calculator");
+    private MenuItem printCoinListMenuItem = new MenuItem("Print coin list");
+    private Menu setDetailsMenuItem = new Menu("Set details");
+    private MenuItem displayProgramConfigsMenuItem = new MenuItem("Display program configurations");
+    private MenuItem quitMenuItem = new MenuItem("Quit the program");
+    private MenuItem setCurrencyMenuItem = new MenuItem("Set currency");
+    private MenuItem setMinCoinMenuItem = new MenuItem("Set minimum coin input value");
+    private MenuItem setMaxCoinMenuItem = new MenuItem("Set maximum coin input value");
+    private Text explainer = new Text();
+    private Label exchangeValueLabel = new Label("Exchange value");
+    private TextField exchangeValueField = new TextField();  
+    private Label currencyLabel = new Label("Currency");
+    private TextField currencyField = new TextField();
+    private Label minValueLabel = new Label("Minimum value");
+	private TextField minValueField = new TextField();
+	private Label maxValueLabel = new Label("Maximum value");
+	private TextField maxValueField = new TextField(); 
+	private Label coinTypeLabel = new Label("Coin type");
+	private final ComboBox<Integer> coinTypeSelect = new ComboBox<Integer>();
+	private Button setButton = new Button("Set");
+	private Button calculateButton = new Button("Calculate");
+	private Text result = new Text();
+	private final int FIELD_WIDTH = 50;
+	private final int SCENE_WIDTH = 800;
+	private final int SCENE_HEIGHT = 400;
+	private final int FONT_SIZE = 20;
 	
 	@Override    
 	public void start(Stage stage) {
 		CoinSorter coinSorter = new CoinSorter();
 		
-		Menu coinSorterMainMenu = new Menu("Click here to choose from this menu");
-
-	    MenuItem coinCalculatorMenuItem = new MenuItem("Coin calculator");
-	    MenuItem multipleCaculatorMenuItem = new MenuItem("Multiple coin calculator");
-	    MenuItem printCoinListMenuItem = new MenuItem("Print coin list");
-	    Menu setDetailsMenuItem = new Menu("Set details");
-	    MenuItem displayProgramConfigsMenuItem = new MenuItem("Display program configurations");
-	    MenuItem quitMenuItem = new MenuItem("Quit the program");
-	    
-	    MenuItem setCurrencyMenuItem = new MenuItem("Set currency");
-	    MenuItem setMinCoinMenuItem = new MenuItem("Set minimum coin input value");
-	    MenuItem setMaxCoinMenuItem = new MenuItem("Set maximum coin input value");
-	    
+		// Format components
+		explainer.setFont(Font.font("Arial"));
+		exchangeValueLabel.setFont(Font.font("Arial", FONT_SIZE));    
+	    coinTypeLabel.setFont(Font.font("Arial", FONT_SIZE));
+	    exchangeValueField.setMaxWidth(FIELD_WIDTH);
+	 	currencyField.setMaxWidth(FIELD_WIDTH); 
+	 	minValueField.setMaxWidth(FIELD_WIDTH);
+	 	maxValueField.setMaxWidth(FIELD_WIDTH);
+	 	
+		
+	 	// Adding all the sub menu items for the set details option
 	    setDetailsMenuItem.getItems().addAll(
 	    		setCurrencyMenuItem,
 	    		setMinCoinMenuItem,
 	    		setMaxCoinMenuItem
 	    );
 	    
-
+	    // Adding all the main menu options for coin sorter
 	    coinSorterMainMenu.getItems().addAll(
 	    		coinCalculatorMenuItem,
-	    		multipleCaculatorMenuItem,
+	    		multipleCalculatorMenuItem,
 	    		printCoinListMenuItem,
 	    		setDetailsMenuItem,
 	    		displayProgramConfigsMenuItem,
 	    		quitMenuItem
 	    );
 	    
+	    // Setting up coin list to use in the form
+	    coinTypeSelect.getItems().addAll(coinSorter.getCoinList());
+	    // Preselecting a value from the coin list select to prevent null values
+	    coinTypeSelect.getSelectionModel().select(0); 
+	    
+	    // Setting up the base root. It is made up of the menu bar and the sub
+	    // component which is dynamic based what is selected in the menu bar.
 	    VBox root = new VBox(25);
 	 	MenuBar menuBar = new MenuBar(coinSorterMainMenu);
-	 	VBox homeRoot = buildHomeVBox();
+	 	VBox homeRoot = buildHomeContainer();
 	 	root.getChildren().addAll(menuBar, homeRoot);
-
-	 	Scene defaultScene = new Scene(root, 800, 400);
-	    stage.setScene(defaultScene);
-	    
-	    buildEventListeners(
-	    	root,
-	    	coinSorter,
-	    	coinCalculatorMenuItem,
-	    	multipleCaculatorMenuItem,
-	    	printCoinListMenuItem,
-	    	displayProgramConfigsMenuItem,
-	    	setCurrencyMenuItem,
-	    	setMinCoinMenuItem,
-	    	setMaxCoinMenuItem
-	    );
 	 	
-	 	// create and configure a button to perform the calculations 
+	 	// Setting up all the event listeners for each menu bar option which should
+	 	// change the content of the sub component in the root container
+	 	buildEventListeners(root, coinSorter);
+
+	 	// Creating the 
+	 	Scene defaultScene = new Scene(root, SCENE_WIDTH, SCENE_HEIGHT);
+	    stage.setScene(defaultScene);
 	    stage.setTitle("Coin Sorter");
 	    stage.show();
 	}
-	
-	private void buildEventListeners(VBox root, CoinSorter coinSorter, MenuItem coinCalculatorMenuItem,
-			MenuItem multipleCaculatorMenuItem, MenuItem printCoinListMenuItem, MenuItem displayProgramConfigsMenuItem,
-			MenuItem setCurrencyMenuItem, MenuItem setMinCoinMenuItem, MenuItem setMaxCoinMenuItem) {
-		coinCalculatorMenuItem.setOnAction(e -> {
-	    	root.getChildren().remove(1);
-	    	root.getChildren().add(buildCoinCalculatorVBox(coinSorter));
-		});
-	    
-	    multipleCaculatorMenuItem.setOnAction(e -> {
-	    	root.getChildren().remove(1);
-	    	root.getChildren().add(buildMultipleCalculatorVBox(coinSorter));
-	    });
-	    
-	    printCoinListMenuItem.setOnAction(e -> {
-	    	root.getChildren().remove(1);
-	    	root.getChildren().add(buildCoinListVBox(coinSorter));
-	    });
-	    
-	    displayProgramConfigsMenuItem.setOnAction(e -> {
-	    	root.getChildren().remove(1);
-	    	root.getChildren().add(buildDisplayConfigsVBox(coinSorter));
-	    });
-	    
-	    setCurrencyMenuItem.setOnAction(e -> {
-	    	root.getChildren().remove(1);
-	    	root.getChildren().add(buildSetCurrencyVBox(coinSorter));
-	    });
-	    
-	    setMinCoinMenuItem.setOnAction(e -> {
-	    	root.getChildren().remove(1);
-	    	root.getChildren().add(buildSetMinCoinVBox(coinSorter));
-	    });
-	    
-	    setMaxCoinMenuItem.setOnAction(e -> {
-	    	root.getChildren().remove(1);
-	    	root.getChildren().add(buildSetMaxCoinVBox(coinSorter));
-	    });
-	}
 
-	public static void main(String[] args) {         
+	public static void main(String[] args) { 
 		launch(args);
 	}
 	
-	private VBox buildHomeVBox() {
+	private void buildEventListeners(VBox root, CoinSorter coinSorter) {
+		coinCalculatorMenuItem.setOnAction(e -> {
+			coinCalculatorMenuItemHandler(coinSorter, root);
+		});
+	    
+	    multipleCalculatorMenuItem.setOnAction(e -> {
+	    	multipleCalculatorMenuItemHandler(coinSorter, root);
+	    });
+	    
+	    printCoinListMenuItem.setOnAction(e -> {
+	    	printCoinListMenuItemHandler(coinSorter, root);
+	    });
+	    
+	    displayProgramConfigsMenuItem.setOnAction(e -> {
+	    	displayProgramConfigsMenuItemHandler(coinSorter, root);
+	    });
+	    
+	    setCurrencyMenuItem.setOnAction(e -> {
+	    	 setCurrencyMenuItemHandler(coinSorter, root);
+	    });
+	    
+	    setMinCoinMenuItem.setOnAction(e -> {
+	    	setMinCoinMenuItemHandler(coinSorter, root);
+	    });
+	    
+	    setMaxCoinMenuItem.setOnAction(e -> {
+	    	setMaxCoinMenuItemHandler(coinSorter, root);
+	    });
+	    
+	    quitMenuItem.setOnAction(e -> {
+	    	Platform.exit();
+	    });
+	}
+	
+	private VBox buildHomeContainer() {
 		VBox container = new VBox(25);
 	    container.setAlignment(Pos.CENTER);
-		Text explainer = new Text("Welcome to the coin sorter. Choose from the main menu above find out what you can do with the coin sorter");
-	 	explainer.setFont(Font.font("Arial"));
+	    explainer.setText("Welcome to the coin sorter. Choose from the main menu above find out what you can do with the coin sorter");
 	 	container.getChildren().addAll(explainer);
 	    return container;
 	}
-	
-	private VBox buildCoinCalculatorVBox(CoinSorter coinSorter) {
+
+	private VBox buildCoinCalculatorContainer(CoinSorter coinSorter) {
 		VBox container = new VBox(25);
 	    container.setAlignment(Pos.CENTER);
-	    Text result = new Text();
-	    Text explainer = new Text("Coin calculator");
-	    HBox inputComponents = buildInputComponents(coinSorter, result);
-	    container.getChildren().addAll(explainer, inputComponents, result);
+	    explainer.setText("Coin calculator");
+	    HBox formComponent = buildCoinCalculatorForm(coinSorter);
+	    container.getChildren().addAll(explainer, formComponent, result);
 	    return container;
 	}
 	
-	private VBox buildMultipleCalculatorVBox(CoinSorter coinSorter) {
+	private HBox buildCoinCalculatorForm(CoinSorter coinSorter) {
+		// Run the coin calculator when the calculator button is clicked
+ 	 	calculateButton.setOnAction(e -> {
+ 	 		coinCalculatorFormHandler(coinSorter);
+		});
+	 	// create and configure an HBox for the labels and text inputs                       
+	 	HBox form = new HBox(10);
+	 	form.setAlignment(Pos.CENTER);
+	 	form.getChildren().addAll(exchangeValueLabel, exchangeValueField, coinTypeLabel, coinTypeSelect, calculateButton);
+	 	return form;
+	}
+	
+	private VBox buildMultipleCalculatorContainer(CoinSorter coinSorter) {
 		VBox container = new VBox(25);
 	    container.setAlignment(Pos.CENTER);
-	    Text result = new Text();
-	    Text explainer = new Text("Multiple coin calculator");
-	    HBox inputComponents = buildMultipleCoinInputComponents(coinSorter, result);
-	    container.getChildren().addAll(explainer, inputComponents, result);
+	    
+	    explainer.setText("Multiple coin calculator");
+	    HBox formComponent = buildMultipleCoinForm(coinSorter);
+	    container.getChildren().addAll(explainer, formComponent, result);
 	    return container;
 	}
 	
-	private VBox buildCoinListVBox(CoinSorter coinSorter) {
+	private HBox buildMultipleCoinForm(CoinSorter coinSorter) {
+		// Run the multiple coin calculator when the calculator button is clicked
+ 	 	calculateButton.setOnAction(e -> {
+ 	 		multipleCalculatorFormHandler(coinSorter);
+		});
+	 	
+	 	// create and configure an HBox for the labels and text inputs                       
+	 	HBox form = new HBox(10);
+	 	form.setAlignment(Pos.CENTER);
+	 	form.getChildren().addAll(exchangeValueLabel, exchangeValueField, coinTypeLabel, coinTypeSelect, calculateButton);
+	 	return form;
+	}
+	
+	private VBox buildCoinListContainer(CoinSorter coinSorter) {
 		VBox container = new VBox(25);
 	    container.setAlignment(Pos.CENTER);
 	    Text result = new Text(coinSorter.printCoinList());
-	    Text explainer = new Text("The coin list");
+	    explainer.setText("The coin list");
 	    container.getChildren().addAll(explainer, result);
 	    return container;
 	}
 	
-	private VBox buildDisplayConfigsVBox(CoinSorter coinSorter) {
+	private VBox buildDisplayConfigsContainer(CoinSorter coinSorter) {
 		VBox container = new VBox(25);
 	    container.setAlignment(Pos.CENTER);
 	    Text result = new Text(coinSorter.displayProgramConfigs());
-	    Text explainer = new Text("The coin sorter configuration");
+	    explainer.setText("The coin sorter configuration");
 	    container.getChildren().addAll(explainer, result);
 	    return container;
 	}
 
-	private VBox buildSetCurrencyVBox(CoinSorter coinSorter) {
+	private VBox buildSetCurrencyContainer(CoinSorter coinSorter) {
 		VBox container = new VBox(25);
 	    container.setAlignment(Pos.CENTER);
 	    
-		// create and configure Labels for the text fields  
-	    Label currencyLabel = new Label("Currency");
-		TextField currencyField = new TextField();         
-	 	currencyField.setMaxWidth(50);
-	 	Button setButton = new Button();         
- 	 	setButton.setText("Set");
-	 	
 	 	// create and configure text fields for input   
-	 	HBox inputComponents = new HBox(10);
-	 	inputComponents.setAlignment(Pos.CENTER);
-	 	inputComponents.getChildren().addAll(currencyLabel, currencyField, setButton);
+	 	HBox formComponent = new HBox(10);
+	 	formComponent.setAlignment(Pos.CENTER);
+	 	formComponent.getChildren().addAll(currencyLabel, currencyField, setButton);
 	 	
- 	 	
- 	 	Text result = new Text();
-	    Text explainer = new Text("Set a currency");
+	    explainer.setText("Set a currency");
  	 	
  	 	setButton.setOnAction(e -> {
  	 		String currency = currencyField.getText();
@@ -193,29 +225,20 @@ public class CoinSorterGUI extends Application {
  	 		result.setText(coinSorter.displayProgramConfigs());
 		});
 	    
-	    container.getChildren().addAll(inputComponents, explainer, result);
+	    container.getChildren().addAll(explainer, formComponent, result);
 	    return container;
 	}
 
-	private VBox buildSetMinCoinVBox(CoinSorter coinSorter) {
+	private VBox buildSetMinCoinContainer(CoinSorter coinSorter) {
 		VBox container = new VBox(25);
 	    container.setAlignment(Pos.CENTER);
-	    
-		// create and configure Labels for the text fields  
-	    Label minValueLabel = new Label("Minimum value");
-		TextField minValueField = new TextField();         
-	 	minValueField.setMaxWidth(50);
-	 	Button setButton = new Button();         
- 	 	setButton.setText("Set");
 	 	
-	 	// create and configure text fields for input   
-	 	HBox inputComponents = new HBox(10);
-	 	inputComponents.setAlignment(Pos.CENTER);
-	 	inputComponents.getChildren().addAll(minValueLabel, minValueField, setButton);
+	 	// create and configure text fields for input 
+	 	HBox formComponent = new HBox(10);
+	 	formComponent.setAlignment(Pos.CENTER);
+	 	formComponent.getChildren().addAll(minValueLabel, minValueField, setButton);
 	 	
- 	 	
- 	 	Text result = new Text();
-	    Text explainer = new Text("Set a minimum value");
+	    explainer.setText("Set a minimum value");
  	 	
  	 	setButton.setOnAction(e -> {
  	 		int minValue = Integer.parseInt(minValueField.getText());
@@ -225,30 +248,20 @@ public class CoinSorterGUI extends Application {
  	 		}
 		});
 	 	
- 	 	container.getChildren().clear();
-	    container.getChildren().addAll(inputComponents, explainer, result);
+	    container.getChildren().addAll(explainer, formComponent, result);
 	    return container;
 	}
 	
-	private VBox buildSetMaxCoinVBox(CoinSorter coinSorter) {
+	private VBox buildSetMaxCoinContainer(CoinSorter coinSorter) {
 		VBox container = new VBox(25);
 	    container.setAlignment(Pos.CENTER);
-	    
-		// create and configure Labels for the text fields  
-	    Label maxValueLabel = new Label("Maximum value");
-		TextField maxValueField = new TextField();         
-	 	maxValueField.setMaxWidth(50);
-	 	Button setButton = new Button();         
- 	 	setButton.setText("Set");
 	 	
 	 	// create and configure text fields for input   
-	 	HBox inputComponents = new HBox(10);
-	 	inputComponents.setAlignment(Pos.CENTER);
-	 	inputComponents.getChildren().addAll(maxValueLabel, maxValueField, setButton);
+	 	HBox formComponent = new HBox(10);
+	 	formComponent.setAlignment(Pos.CENTER);
+	 	formComponent.getChildren().addAll(maxValueLabel, maxValueField, setButton);
 	 	
- 	 	
- 	 	Text result = new Text();
-	    Text explainer = new Text("Set a maximum value");
+	    explainer.setText("Set a maximum value");
  	 	
  	 	setButton.setOnAction(e -> {
  	 		int maxValue = Integer.parseInt(maxValueField.getText());
@@ -258,91 +271,89 @@ public class CoinSorterGUI extends Application {
  	 		}
 		});
 	 	
-	    container.getChildren().addAll(inputComponents, explainer, result);
+	    container.getChildren().addAll(explainer, formComponent, result);
 	    return container;
 	}
 	
-	private HBox buildInputComponents(CoinSorter coinSorter, Text result) {
-	    // create and configure Labels for the text fields  
-	    Label exchangeValueLabel = new Label("Exchange value");
-	    exchangeValueLabel.setFont(Font.font("Arial", 20)); 
-	    
-	    Label coinTypeLabel = new Label("Coin type");
-	    coinTypeLabel.setFont(Font.font("Arial", 20));
-	    
-	    // create and configure text fields for input         
-	 	TextField exchangeValueField = new TextField();         
-	 	exchangeValueField.setMaxWidth(50);         
-	 	TextField coinTypeField = new TextField();         
-	 	coinTypeField.setMaxWidth(50); 
-	    
-	    Button calculateButton = new Button();         
- 	 	calculateButton.setText("Calculate"); 
- 	 	
- 	 	calculateButton.setOnAction(e -> {
- 	 		int exchangeValue = Integer.parseInt(exchangeValueField.getText());
- 	 		int coinType = Integer.parseInt(coinTypeField.getText());
- 	 		boolean exchangeValueValidation = validateExchangeValue(exchangeValue, coinSorter.getMinCoinIn(), coinSorter.getMaxCoinIn(), result);
- 	 		boolean coinValidation = validateCoin(coinType, coinSorter.getCoinList(), result);
- 	 		if(coinValidation && exchangeValueValidation) {
- 	 			result.setText(coinSorter.coinCalculator(exchangeValue, coinType));
- 	 		}
- 	 		
-		});
-	 	
-	 	// create and configure an HBox for the labels and text inputs                       
-	 	HBox inputComponents = new HBox(10);
-	 	inputComponents.setAlignment(Pos.CENTER);
-	 	inputComponents.getChildren().addAll(exchangeValueLabel, exchangeValueField, coinTypeLabel, coinTypeField, calculateButton);
-	 	return inputComponents;
-	}
-	
-	private HBox buildMultipleCoinInputComponents(CoinSorter coinSorter, Text result) {
-		// create and configure text fields for input         
-	 	TextField exchangeValueField = new TextField();         
-	 	exchangeValueField.setMaxWidth(50);         
-	 	TextField coinTypeField = new TextField();         
-	 	coinTypeField.setMaxWidth(50); 
-	    
-	    // create and configure Labels for the text fields  
-	    Label exchangeValueLabel = new Label("Exchange value");
-	    exchangeValueLabel.setFont(Font.font("Arial", 20)); 
-	    
-	    Label coinTypeLabel = new Label("Coin type");
-	    coinTypeLabel.setFont(Font.font("Arial", 20)); 
-	    
-	    Button calculateButton = new Button();         
- 	 	calculateButton.setText("Calculate"); 
- 	 	
- 	 	calculateButton.setOnAction(e -> {
- 	 			int exchangeValue = Integer.parseInt(exchangeValueField.getText());
- 	 			int coinType = Integer.parseInt(coinTypeField.getText());
- 	 			boolean exchangeValueValidation = validateExchangeValue(exchangeValue, coinSorter.getMinCoinIn(), coinSorter.getMaxCoinIn(), result);
- 	 	 		boolean coinValidation = validateCoin(coinType, coinSorter.getCoinList(), result);
- 	 	 		if(coinValidation && exchangeValueValidation) {
- 	 	 			result.setText(coinSorter.multiCoinCalculator(exchangeValue, coinType));
- 	 	 		}
-		});
-	 	
-	 	// create and configure an HBox for the labels and text inputs                       
-	 	HBox inputComponents = new HBox(10);
-	 	inputComponents.setAlignment(Pos.CENTER);
-	 	inputComponents.getChildren().addAll(exchangeValueLabel, exchangeValueField, coinTypeLabel, coinTypeField, calculateButton);
-	 	return inputComponents;
+	private void coinCalculatorFormHandler(CoinSorter coinSorter) {
+		if (exchangeValueField.getText() == "") {
+			result.setText("You must enter an exchange value in order to calculate the result");
+			return;
+		}
+		int exchangeValue = Integer.parseInt(exchangeValueField.getText().trim());
+		int coinType = (Integer) coinTypeSelect.getValue();
+ 		boolean exchangeValueValidation = validateExchangeValue(exchangeValue, coinSorter.getMinCoinIn(), coinSorter.getMaxCoinIn(), result);
+ 		
+ 		// Check if coin is part of the coin list before running the coin calculator
+ 		if(exchangeValueValidation) {
+ 			result.setText(coinSorter.coinCalculator(exchangeValue, coinType));
+ 		}
+ 		
 	}
 
-	// Used to check the denomination a user enters in part of the coin list
-	private static boolean validateCoin(int coinType, ArrayList<Integer> coinList, Text result) {
-		if(coinList.contains(coinType)) {
-			return true;
-		} else {
-			result.setText("The coin list does not contain " + coinType + "p");
-			return false;
+	private void multipleCalculatorFormHandler(CoinSorter coinSorter) {
+		if (exchangeValueField.getText() == "") {
+			result.setText("You must enter an exchange value in order to calculate the result");
+			return;
 		}
+		int exchangeValue = Integer.parseInt(exchangeValueField.getText().trim());
+		int coinType = (Integer) coinTypeSelect.getValue();
+		boolean exchangeValueValidation = validateExchangeValue(exchangeValue, coinSorter.getMinCoinIn(), coinSorter.getMaxCoinIn(), result);
+ 		
+ 		// Check if coin is part of the coin list before running the multiple coin calculator
+ 		if(exchangeValueValidation) {
+ 			result.setText(coinSorter.multiCoinCalculator(exchangeValue, coinType));
+ 		}
+ 		
+	}
+	
+	private void coinCalculatorMenuItemHandler(CoinSorter coinSorter, VBox root) {
+		clearTextsAndFields();
+		root.getChildren().remove(1);
+    	root.getChildren().add(buildCoinCalculatorContainer(coinSorter));
+	}
+	
+	private void multipleCalculatorMenuItemHandler(CoinSorter coinSorter, VBox root) {
+		clearTextsAndFields();
+		root.getChildren().remove(1);
+    	root.getChildren().add(buildMultipleCalculatorContainer(coinSorter));
+	}
+
+	private void displayProgramConfigsMenuItemHandler(CoinSorter coinSorter, VBox root) {
+		root.getChildren().remove(1);
+    	root.getChildren().add(buildDisplayConfigsContainer(coinSorter));
+	}
+	
+	private void printCoinListMenuItemHandler(CoinSorter coinSorter, VBox root) {
+		root.getChildren().remove(1);
+    	root.getChildren().add(buildCoinListContainer(coinSorter));
+	}
+	
+	private void setCurrencyMenuItemHandler(CoinSorter coinSorter, VBox root) {
+		clearTextsAndFields();
+		root.getChildren().remove(1);
+    	root.getChildren().add(buildSetCurrencyContainer(coinSorter));
+	}
+	
+	private void setMinCoinMenuItemHandler(CoinSorter coinSorter, VBox root) {
+		clearTextsAndFields();
+		root.getChildren().remove(1);
+    	root.getChildren().add(buildSetMinCoinContainer(coinSorter));
+	}
+	
+	private void setMaxCoinMenuItemHandler(CoinSorter coinSorter, VBox root) {
+		clearTextsAndFields();
+		root.getChildren().remove(1);
+    	root.getChildren().add(buildSetMaxCoinContainer(coinSorter));
+	}
+	
+	private void clearTextsAndFields() {
+		result.setText("");
+		exchangeValueField.setText("");
 	}
 	
 	// Used to check the the exchange value id in between the boundaries of the coin values
-	private static boolean validateExchangeValue(int exchangeValue, int minCoinValue, int maxCoinValue, Text result) {
+	private boolean validateExchangeValue(int exchangeValue, int minCoinValue, int maxCoinValue, Text result) {
 		if(exchangeValue < minCoinValue) {
 			result.setText("The minimum amount you can exchange is: " + minCoinValue);
 			return false;
@@ -354,8 +365,12 @@ public class CoinSorterGUI extends Application {
 		}
 	}
 
-	private static boolean validateMinMaxValues(int minValue, int maxValue, Text result) {
-		if(minValue > maxValue) {
+	// Used to validate that the minimum and and maximum values are in the right order when they are set
+	private boolean validateMinMaxValues(int minValue, int maxValue, Text result) {
+		if(minValue < 0 || maxValue < 0) {
+			result.setText("The amount set must be greater than 0");
+			return false;
+		} else if(minValue > maxValue) {
 			result.setText("The maximum amount: " + maxValue + " must be greater than the minimum amount: " + minValue);
 			return false;
 		}

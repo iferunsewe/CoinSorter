@@ -1,13 +1,13 @@
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class CoinSorter {
 	private String currency;
 	private int minCoinIn;
 	private int maxCoinIn;
-	private ArrayList<Integer> coinList;
+	private List<Integer> coinList;
 
-	public CoinSorter(String currencyIn, int minCoinEntered, int maxCoinEntered, ArrayList<Integer> coinListIn) {
+	public CoinSorter(String currencyIn, int minCoinEntered, int maxCoinEntered, List<Integer> coinListIn) {
 		currency = currencyIn;
 		minCoinIn = minCoinEntered;
 		maxCoinIn = maxCoinEntered;
@@ -15,8 +15,8 @@ public class CoinSorter {
 	}
 	
 	public CoinSorter() {
-		ArrayList<Integer>defaultCoinList = new ArrayList<>(Arrays.asList(200, 100, 50, 20, 10));
-		currency = "£";
+		List<Integer>defaultCoinList = Arrays.asList(200, 100, 50, 20, 10);
+		currency = "Pound sterling (£)";
 		minCoinIn = 0;
 		maxCoinIn = 10000;
 		coinList = defaultCoinList;
@@ -46,7 +46,7 @@ public class CoinSorter {
 		return maxCoinIn;
 	}
 	
-	public ArrayList<Integer> getCoinList() {
+	public List<Integer> getCoinList() {
 		return coinList;
 	}
 	
@@ -54,9 +54,16 @@ public class CoinSorter {
 		return "The current coin denominations are in circulation: " + getCoinListString();
 	}
 	
+	/* The coin calculator works by taking in an exchange value and a coin type
+	 * and calculates how many coins can be exchanged for a given coin type and the
+	 * remainder left.
+	 */
+	
 	public String coinCalculator(int exchangeValue, int coinType) {
 		int maxNumberOfCoins = exchangeValue / coinType;
 		int remainder = exchangeValue % coinType;
+		// In future you could replace the pennies currency with what the lower denomination
+		// of whatever currency you set e.g. for US dollars ($) it would be cents.
 		return "A total of " + maxNumberOfCoins + " x "+ coinType + "p coins can " 
 				+ "be exchanged, with a remainder of " + remainder + "p";
 		

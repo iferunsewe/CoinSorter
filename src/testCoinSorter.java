@@ -1,5 +1,7 @@
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
+
+import javafx.scene.text.Text;
 
 public class testCoinSorter {
 	public static void main(String[] args) {
@@ -77,11 +79,21 @@ public class testCoinSorter {
 				break;
 			case 2:
 				System.out.println("You've chosen to set the minimum coin input value");
-				coinSorter.setMinCoinIn(sc.nextInt());
+				int minValueEntered = sc.nextInt();
+				if(validateMinMaxValues(minValueEntered, coinSorter.getMaxCoinIn())) {
+					coinSorter.setMinCoinIn(minValueEntered);
+					System.out.println("\nThe current coin sorter configuration is;");
+					System.out.println(coinSorter.displayProgramConfigs());
+				};
 				break;
 			case 3:
 				System.out.println("You've chosen to set the maximum coin input value");
-				coinSorter.setMaxCoinIn(sc.nextInt());
+				int maxValueEntered = sc.nextInt();
+				if(validateMinMaxValues(coinSorter.getMinCoinIn(), maxValueEntered)) {
+					coinSorter.setMaxCoinIn(maxValueEntered);
+					System.out.println("\nThe current coin sorter configuration is;");
+					System.out.println(coinSorter.displayProgramConfigs());
+				}
 				break;
 			default: return;
 		}
@@ -123,7 +135,7 @@ public class testCoinSorter {
 	}
 	
 	// Used to check the denomination a user enters in part of the coin list
-	private static boolean validateCoin(int coinType, ArrayList<Integer> coinList) {
+	private static boolean validateCoin(int coinType, List<Integer> coinList) {
 		if(coinList.contains(coinType)) {
 			System.out.println("The coin list does contain " + coinType + "p");
 			return true;
@@ -146,9 +158,21 @@ public class testCoinSorter {
 		}
 	}
 	
+	// Used to validate that the minimum and and maximum values are in the right order when they are set
+	private static boolean validateMinMaxValues(int minValue, int maxValue) {
+		if(minValue < 0 || maxValue < 0) {
+			System.out.println("The amount set must be greater than 0");
+			return false;
+		} else if(minValue > maxValue) {
+			System.out.println("The maximum amount (" + maxValue + ") must be greater than the minimum amount (" + minValue + ")");
+			return false;
+		}
+		return true;
+	}
+	
 	// Used to display the sub menu
 	private static void displaySubMenu() {
-		System.out.println("***Set Details Sub-Menu***");
+		System.out.println("\n***Set Details Sub-Menu***");
 		System.out.println("1 - Set currency");
         System.out.println("2 - Set minimum coin input value");
         System.out.println("3 - Set maximum coin input value");
