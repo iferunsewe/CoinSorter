@@ -1,4 +1,9 @@
-import javafx.application.Application;
+/**
+ * A class to that uses JavaFX to display information and provide the user 
+ * with some actions relating to functionality of the CoinSorter. 
+ * @version 21/11/2020
+ */
+
 import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -11,13 +16,12 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
-public class CoinSorterGUI extends Application {
-	private Menu coinSorterMainMenu = new Menu("Click here to choose from this menu");
+public class CoinSorterGUI {
+	private Menu coinSorterMainMenu = new Menu("Main menu. Click here to use the coin sorter.");
     private MenuItem coinCalculatorMenuItem = new MenuItem("Coin calculator");
     private MenuItem multipleCalculatorMenuItem = new MenuItem("Multiple coin calculator");
     private MenuItem printCoinListMenuItem = new MenuItem("Print coin list");
@@ -41,33 +45,49 @@ public class CoinSorterGUI extends Application {
 	private Button setButton = new Button("Set");
 	private Button calculateButton = new Button("Calculate");
 	private Text result = new Text();
-	private final int FIELD_WIDTH = 50;
+	private final int FIELD_WIDTH = 100;
 	private final int SCENE_WIDTH = 800;
 	private final int SCENE_HEIGHT = 400;
 	private final int FONT_SIZE = 20;
-	
-	@Override    
-	public void start(Stage stage) {
-		CoinSorter coinSorter = new CoinSorter();
-		
-		// Format components
-		explainer.setFont(Font.font("Arial"));
-		exchangeValueLabel.setFont(Font.font("Arial", FONT_SIZE));    
-	    coinTypeLabel.setFont(Font.font("Arial", FONT_SIZE));
-	    exchangeValueField.setMaxWidth(FIELD_WIDTH);
-	 	currencyField.setMaxWidth(FIELD_WIDTH); 
-	 	minValueField.setMaxWidth(FIELD_WIDTH);
-	 	maxValueField.setMaxWidth(FIELD_WIDTH);
-	 	
-		
-	 	// Adding all the sub menu items for the set details option
-	    setDetailsMenuItem.getItems().addAll(
-	    		setCurrencyMenuItem,
-	    		setMinCoinMenuItem,
-	    		setMaxCoinMenuItem
-	    );
+	private VBox root = new VBox(25);
+	private CoinSorter coinSorter = new CoinSorter();
 	    
-	    // Adding all the main menu options for coin sorter
+	public CoinSorterGUI(Stage stage) {
+		formatComponents();
+		addMenuItemsToSubMenu();
+		addMenuItemsToMainMenu();
+		setUpCoinList();
+		setUpRoot();
+	 	buildEventListeners(root, coinSorter);
+	}
+	
+	// Creating the default screen which has the root VBox in it and then shows
+	// the stage for the program to be displayed on the screen
+	void displayStage(Stage stage) {
+		Scene defaultScene = new Scene(root, SCENE_WIDTH, SCENE_HEIGHT);
+	    stage.setScene(defaultScene);
+	    stage.setTitle("Coin Sorter");
+	    stage.show();
+	}
+	
+	// Setting up the base root. It is made up of the menu bar and the sub
+    // component which is dynamic based what is selected in the menu bar.
+	private void setUpRoot() {
+		MenuBar menuBar = new MenuBar(coinSorterMainMenu);
+	 	VBox homeRoot = buildHomeContainer();
+	 	root.getChildren().addAll(menuBar, homeRoot);
+	};
+
+	// Setting up coin list to use in the form
+	private void setUpCoinList() {
+	    coinTypeSelect.getItems().addAll(coinSorter.getCoinList());
+	    // Preselecting a value from the coin list select to prevent null values
+	    coinTypeSelect.getSelectionModel().select(0); 
+	}
+	
+	// Adding all the main menu options for coin sorter
+	private void addMenuItemsToMainMenu() {
+		
 	    coinSorterMainMenu.getItems().addAll(
 	    		coinCalculatorMenuItem,
 	    		multipleCalculatorMenuItem,
@@ -76,34 +96,31 @@ public class CoinSorterGUI extends Application {
 	    		displayProgramConfigsMenuItem,
 	    		quitMenuItem
 	    );
-	    
-	    // Setting up coin list to use in the form
-	    coinTypeSelect.getItems().addAll(coinSorter.getCoinList());
-	    // Preselecting a value from the coin list select to prevent null values
-	    coinTypeSelect.getSelectionModel().select(0); 
-	    
-	    // Setting up the base root. It is made up of the menu bar and the sub
-	    // component which is dynamic based what is selected in the menu bar.
-	    VBox root = new VBox(25);
-	 	MenuBar menuBar = new MenuBar(coinSorterMainMenu);
-	 	VBox homeRoot = buildHomeContainer();
-	 	root.getChildren().addAll(menuBar, homeRoot);
-	 	
-	 	// Setting up all the event listeners for each menu bar option which should
-	 	// change the content of the sub component in the root container
-	 	buildEventListeners(root, coinSorter);
-
-	 	// Creating the 
-	 	Scene defaultScene = new Scene(root, SCENE_WIDTH, SCENE_HEIGHT);
-	    stage.setScene(defaultScene);
-	    stage.setTitle("Coin Sorter");
-	    stage.show();
-	}
-
-	public static void main(String[] args) { 
-		launch(args);
 	}
 	
+	// Adding all the sub menu items for the set details option
+	private void addMenuItemsToSubMenu() {
+	    setDetailsMenuItem.getItems().addAll(
+	    		setCurrencyMenuItem,
+	    		setMinCoinMenuItem,
+	    		setMaxCoinMenuItem
+	    );
+	}
+	
+	// Format components
+	private void formatComponents() {
+		
+		explainer.setFont(Font.font("Arial"));
+		exchangeValueLabel.setFont(Font.font("Arial", FONT_SIZE));    
+	    coinTypeLabel.setFont(Font.font("Arial", FONT_SIZE));
+	    exchangeValueField.setMaxWidth(FIELD_WIDTH);
+	 	currencyField.setMaxWidth(FIELD_WIDTH); 
+	 	minValueField.setMaxWidth(FIELD_WIDTH);
+	 	maxValueField.setMaxWidth(FIELD_WIDTH);
+	}
+	
+	// Setting up all the event listeners for each menu bar option which should
+	// change the content of the sub component in the root container
 	private void buildEventListeners(VBox root, CoinSorter coinSorter) {
 		coinCalculatorMenuItem.setOnAction(e -> {
 			coinCalculatorMenuItemHandler(coinSorter, root);
@@ -138,27 +155,36 @@ public class CoinSorterGUI extends Application {
 	    });
 	}
 	
+	// Builds the container to used to take show at first when the program firsts loads
 	private VBox buildHomeContainer() {
 		VBox container = new VBox(25);
 	    container.setAlignment(Pos.CENTER);
-	    explainer.setText("Welcome to the coin sorter. Choose from the main menu above find out what you can do with the coin sorter");
+	    explainer.setText(
+	    		"Welcome to the coin sorter.\nChoose from the main menu above" +
+	    		" find out what you can do with the coin sorter"
+	    );
 	 	container.getChildren().addAll(explainer);
 	    return container;
 	}
 
-	private VBox buildCoinCalculatorContainer(CoinSorter coinSorter) {
+	// Builds the container to used to take advantage of the coin calculator
+	private VBox buildCoinCalculatorContainer() {
 		VBox container = new VBox(25);
 	    container.setAlignment(Pos.CENTER);
-	    explainer.setText("Coin calculator");
-	    HBox formComponent = buildCoinCalculatorForm(coinSorter);
+	    explainer.setText(
+	    		"Coin calculator\nGive me the amount of money you have to exchange" + 
+	    		" and what denomination you want the\nchange in and I will tell" +
+	    		" you how many coins I can return and what the remainder will be.");
+	    HBox formComponent = buildCoinCalculatorForm();
 	    container.getChildren().addAll(explainer, formComponent, result);
 	    return container;
 	}
 	
-	private HBox buildCoinCalculatorForm(CoinSorter coinSorter) {
+	// Builds the form to used to take advantage of the coin calculator
+	private HBox buildCoinCalculatorForm() {
 		// Run the coin calculator when the calculator button is clicked
  	 	calculateButton.setOnAction(e -> {
- 	 		coinCalculatorFormHandler(coinSorter);
+ 	 		coinCalculatorFormHandler();
 		});
 	 	// create and configure an HBox for the labels and text inputs                       
 	 	HBox form = new HBox(10);
@@ -167,20 +193,27 @@ public class CoinSorterGUI extends Application {
 	 	return form;
 	}
 	
-	private VBox buildMultipleCalculatorContainer(CoinSorter coinSorter) {
+	// Builds the container to used to take advantage of the multiple coin calculator
+	private VBox buildMultipleCalculatorContainer() {
 		VBox container = new VBox(25);
 	    container.setAlignment(Pos.CENTER);
 	    
-	    explainer.setText("Multiple coin calculator");
-	    HBox formComponent = buildMultipleCoinForm(coinSorter);
+	    explainer.setText(
+	    		"Multiple coin calculator\nGive me the amount of money" + 
+	    		" you have to exchange and what denomination you want to exclude in " +
+	    		"the\nchange and I will tell you how many coins of each denomination " +
+	    		"I can return and what the remainder will be."
+	    );
+	    HBox formComponent = buildMultipleCoinForm();
 	    container.getChildren().addAll(explainer, formComponent, result);
 	    return container;
 	}
 	
-	private HBox buildMultipleCoinForm(CoinSorter coinSorter) {
+	// Builds the form to used to take advantage of the multiple coin calculator
+	private HBox buildMultipleCoinForm() {
 		// Run the multiple coin calculator when the calculator button is clicked
  	 	calculateButton.setOnAction(e -> {
- 	 		multipleCalculatorFormHandler(coinSorter);
+ 	 		multipleCalculatorFormHandler();
 		});
 	 	
 	 	// create and configure an HBox for the labels and text inputs                       
@@ -190,7 +223,8 @@ public class CoinSorterGUI extends Application {
 	 	return form;
 	}
 	
-	private VBox buildCoinListContainer(CoinSorter coinSorter) {
+	// Builds the container to display the coin list.
+	private VBox buildCoinListContainer() {
 		VBox container = new VBox(25);
 	    container.setAlignment(Pos.CENTER);
 	    Text result = new Text(coinSorter.printCoinList());
@@ -199,16 +233,21 @@ public class CoinSorterGUI extends Application {
 	    return container;
 	}
 	
-	private VBox buildDisplayConfigsContainer(CoinSorter coinSorter) {
+	// Builds the container to display the program configurations.
+	private VBox buildDisplayConfigsContainer() {
 		VBox container = new VBox(25);
 	    container.setAlignment(Pos.CENTER);
 	    Text result = new Text(coinSorter.displayProgramConfigs());
-	    explainer.setText("The coin sorter configuration");
+	    explainer.setText(
+	    		"The coin sorter configuration\n" +
+	    		"This displays how the coin sorter is currently set up."
+	    );
 	    container.getChildren().addAll(explainer, result);
 	    return container;
 	}
 
-	private VBox buildSetCurrencyContainer(CoinSorter coinSorter) {
+	// Builds the set currency container to display on the screen.
+	private VBox buildSetCurrencyContainer() {
 		VBox container = new VBox(25);
 	    container.setAlignment(Pos.CENTER);
 	    
@@ -229,7 +268,8 @@ public class CoinSorterGUI extends Application {
 	    return container;
 	}
 
-	private VBox buildSetMinCoinContainer(CoinSorter coinSorter) {
+	// Builds the set minimum coin input value container to display on the screen.
+	private VBox buildSetMinCoinContainer() {
 		VBox container = new VBox(25);
 	    container.setAlignment(Pos.CENTER);
 	 	
@@ -238,7 +278,12 @@ public class CoinSorterGUI extends Application {
 	 	formComponent.setAlignment(Pos.CENTER);
 	 	formComponent.getChildren().addAll(minValueLabel, minValueField, setButton);
 	 	
-	    explainer.setText("Set a minimum value");
+	    explainer.setText(
+	    		"Set a minimum value\nWhen you enter a minimum value below, this will change the" + 
+	    		"\nconfiguration of the coin sorter and a you not be able to exchange a value lower" + 
+	    		"\nthan this value. You can not set below 0 and it can not be greater than the maximum" + 
+	    		"\nvalue " + coinSorter.getMaxCoinIn()
+	    );
  	 	
  	 	setButton.setOnAction(e -> {
  	 		int minValue = Integer.parseInt(minValueField.getText());
@@ -252,7 +297,8 @@ public class CoinSorterGUI extends Application {
 	    return container;
 	}
 	
-	private VBox buildSetMaxCoinContainer(CoinSorter coinSorter) {
+	// Builds the set maximum coin input value container to display on the screen.
+	private VBox buildSetMaxCoinContainer() {
 		VBox container = new VBox(25);
 	    container.setAlignment(Pos.CENTER);
 	 	
@@ -261,7 +307,13 @@ public class CoinSorterGUI extends Application {
 	 	formComponent.setAlignment(Pos.CENTER);
 	 	formComponent.getChildren().addAll(maxValueLabel, maxValueField, setButton);
 	 	
-	    explainer.setText("Set a maximum value");
+	    explainer.setText(
+	    		"Set a maximum value\nWhen you enter a maximum value below, this will change the" + 
+	    	    "\nconfiguration of the coin sorter and a you not be able to exchange a value higher" + 
+	    	    "\nthan this value. You can not set below 0 and it can not be less than the minimum" + 
+	    	    "\nvalue " + coinSorter.getMinCoinIn()
+	    
+	    );
  	 	
  	 	setButton.setOnAction(e -> {
  	 		int maxValue = Integer.parseInt(maxValueField.getText());
@@ -275,7 +327,10 @@ public class CoinSorterGUI extends Application {
 	    return container;
 	}
 	
-	private void coinCalculatorFormHandler(CoinSorter coinSorter) {
+	// Event handler for the the coin calculator form. It performs some validations
+	// and uses the CoinSorter object to calculate the result and then uses the result variable
+	// to display the result of the calculation
+	private void coinCalculatorFormHandler() {
 		if (exchangeValueField.getText() == "") {
 			result.setText("You must enter an exchange value in order to calculate the result");
 			return;
@@ -291,7 +346,10 @@ public class CoinSorterGUI extends Application {
  		
 	}
 
-	private void multipleCalculatorFormHandler(CoinSorter coinSorter) {
+	// Event handler for the the multiple coin calculator form. It performs some validations
+	// and uses the CoinSorter object to calculate the result and then uses the result variable
+	// to display the result of the calculation
+	private void multipleCalculatorFormHandler() {
 		if (exchangeValueField.getText() == "") {
 			result.setText("You must enter an exchange value in order to calculate the result");
 			return;
@@ -307,46 +365,59 @@ public class CoinSorterGUI extends Application {
  		
 	}
 	
+	// Handles when a user clicks the coin calculator menu item. It has to clear
+	// the some texts and fields as they are shared with other screens
 	private void coinCalculatorMenuItemHandler(CoinSorter coinSorter, VBox root) {
 		clearTextsAndFields();
 		root.getChildren().remove(1);
-    	root.getChildren().add(buildCoinCalculatorContainer(coinSorter));
+    	root.getChildren().add(buildCoinCalculatorContainer());
 	}
 	
+	// Handles when a user clicks the multiple coin calculator menu item. It has to clear
+	// the some texts and fields as they are shared with other screens
 	private void multipleCalculatorMenuItemHandler(CoinSorter coinSorter, VBox root) {
 		clearTextsAndFields();
 		root.getChildren().remove(1);
-    	root.getChildren().add(buildMultipleCalculatorContainer(coinSorter));
+    	root.getChildren().add(buildMultipleCalculatorContainer());
 	}
 
+	// Handles when a user clicks the display program configurations menu item
 	private void displayProgramConfigsMenuItemHandler(CoinSorter coinSorter, VBox root) {
 		root.getChildren().remove(1);
-    	root.getChildren().add(buildDisplayConfigsContainer(coinSorter));
+    	root.getChildren().add(buildDisplayConfigsContainer());
 	}
 	
+	// Handles when a user clicks the print coin list menu item
 	private void printCoinListMenuItemHandler(CoinSorter coinSorter, VBox root) {
 		root.getChildren().remove(1);
-    	root.getChildren().add(buildCoinListContainer(coinSorter));
+    	root.getChildren().add(buildCoinListContainer());
 	}
 	
+	// Handles when a user clicks the set currency menu item. It has to clear
+	// the some texts and fields as they are shared with other screens
 	private void setCurrencyMenuItemHandler(CoinSorter coinSorter, VBox root) {
 		clearTextsAndFields();
 		root.getChildren().remove(1);
-    	root.getChildren().add(buildSetCurrencyContainer(coinSorter));
+    	root.getChildren().add(buildSetCurrencyContainer());
 	}
 	
+	// Handles when a user clicks the set minimum coin value menu item. It has to clear
+	// the some texts and fields as they are shared with other screens
 	private void setMinCoinMenuItemHandler(CoinSorter coinSorter, VBox root) {
 		clearTextsAndFields();
 		root.getChildren().remove(1);
-    	root.getChildren().add(buildSetMinCoinContainer(coinSorter));
+    	root.getChildren().add(buildSetMinCoinContainer());
 	}
 	
+	// Handles when a user clicks the set maximum coin value menu item. It has to clear
+	// the some texts and fields as they are shared with other screens
 	private void setMaxCoinMenuItemHandler(CoinSorter coinSorter, VBox root) {
 		clearTextsAndFields();
 		root.getChildren().remove(1);
-    	root.getChildren().add(buildSetMaxCoinContainer(coinSorter));
+    	root.getChildren().add(buildSetMaxCoinContainer());
 	}
 	
+	// Used to clear text and fields that used in multiple screens
 	private void clearTextsAndFields() {
 		result.setText("");
 		exchangeValueField.setText("");

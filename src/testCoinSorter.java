@@ -1,7 +1,12 @@
+/**
+ * A class to that tests the class CoinSorter by giving a user an interface
+ * to interact with the program. It takes a user's inputs and validates the
+ * input before using functions in CoinSorter to perform calculations or display
+ * information about the program to the user.
+ * @version 21/11/2020
+ */
 import java.util.List;
 import java.util.Scanner;
-
-import javafx.scene.text.Text;
 
 public class testCoinSorter {
 	public static void main(String[] args) {
@@ -22,11 +27,11 @@ public class testCoinSorter {
 	private static void displayMenu() {
 		System.out.println("\n***Coin Sorter - Main Menu***");
 		System.out.println("1 - Coin calculator");
-    	System.out.println("2 - Multiple coin calculator");
-    	System.out.println("3 - Print coin list");
-    	System.out.println("4 - Set details");
-    	System.out.println("5 - Display program configurations");
-    	System.out.println("6 - Quit the program");
+		System.out.println("2 - Multiple coin calculator");
+		System.out.println("3 - Print coin list");
+		System.out.println("4 - Set details");
+		System.out.println("5 - Display program configurations");
+		System.out.println("6 - Quit the program");
 	}
 	
 	// Used to choose an option from the main menu based on user's selection
@@ -36,23 +41,23 @@ public class testCoinSorter {
 				System.out.println("You've chosen the coin calculator");
 				runCoinCalculator(coinSorter);
 				break;
-	    		case 2:
-	    			System.out.println("You've chosen the multiple coin calculator");
-	    			runMultipleCoinCalculator(coinSorter);
-	    			break;
-	    		case 3:
-	    			System.out.println("You've chosen to print the coin list");
-	    			System.out.println(coinSorter.printCoinList());
-	    			break;
-	    		case 4:
-	    			System.out.println("You've chosen to set the details of the coin sorter");
-	    			setCoinCalculatorDetails(coinSorter);
-	    			break;
-	    		case 5:
-	    			System.out.println("You've chosen to display program configurations");
+    		case 2:
+    			System.out.println("You've chosen the multiple coin calculator");
+    			runMultipleCoinCalculator(coinSorter);
+    			break;
+    		case 3:
+				System.out.println("You've chosen to print the coin list");
+				System.out.println(coinSorter.printCoinList());
+				break;
+			case 4:
+				System.out.println("You've chosen to set the details of the coin sorter");
+				setCoinCalculatorDetails(coinSorter);
+				break;
+			case 5:
+				System.out.println("You've chosen to display program configurations");
 				System.out.println(coinSorter.displayProgramConfigs());
-	    			break;
-	    		default: return;
+				break;
+			default: return;
 		}
 	}
 
@@ -76,6 +81,7 @@ public class testCoinSorter {
 			case 1:
 				System.out.println("You've chosen to set the currency. Please enter the currency");
 				coinSorter.setCurrency(sc.nextLine());
+				System.out.println(coinSorter.displayProgramConfigs());
 				break;
 			case 2:
 				System.out.println("You've chosen to set the minimum coin input value");
@@ -174,8 +180,8 @@ public class testCoinSorter {
 	private static void displaySubMenu() {
 		System.out.println("\n***Set Details Sub-Menu***");
 		System.out.println("1 - Set currency");
-        System.out.println("2 - Set minimum coin input value");
-        System.out.println("3 - Set maximum coin input value");
-        System.out.println("4 - Return to main menu");
+		System.out.println("2 - Set minimum coin input value");
+		System.out.println("3 - Set maximum coin input value");
+		System.out.println("4 - Return to main menu");
 	}
 }

@@ -1,3 +1,10 @@
+/**
+ * A class to that takes uses a currency, some value boundaries and a list of valid coins
+ * to calculate how many coins can be returned given a value that is within the parameters.
+ * You can also set details about the program and display the current setup.
+ * @version 21/11/2020
+ */
+
 import java.util.Arrays;
 import java.util.List;
 
